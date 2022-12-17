@@ -6,6 +6,7 @@ const bot = new TelegramApi(token, {polling: true});
 const chats = {}
 
 const startGame = async (chatId) => {
+    
     await bot.sendSticker(chatId, 'https://tlgrm.ru/_/stickers/db6/f99/db6f99b9-68b9-379c-8787-7caa5bbfc110/11.webp');
     await bot.sendMessage(chatId, 'Сейчас я загадаю число от 0 до 9, а ты попробуй отгадать!');
     const randomNumber = Math.floor(Math.random()*10)
@@ -27,12 +28,15 @@ const start = () => {
     
         if(text === '/start') {
             await bot.sendSticker(chatId, 'https://tlgrm.ru/_/stickers/db6/f99/db6f99b9-68b9-379c-8787-7caa5bbfc110/2.webp');
+            console.log('/start', msg.from.first_name);
             return bot.sendMessage(chatId, `привет ${msg.from.first_name} ${msg.from.last_name} Мы рады что ты присоеденился к нам! Вводи /info, чтобы узнать больше!`); 
         }
         if(text === '/info') {
+            console.log('/info', msg.from.first_name);
             return bot.sendMessage(chatId, `Тут собрались крутые люди, а теперь тут и ты - ${msg.from.first_name} ${msg.from.last_name}! бухаем!!!`); 
         }
         if(text === '/game1') {
+            console.log('/game1', msg.from.first_name);
             return startGame(chatId);   
         }
         await bot.sendSticker(chatId, 'https://tlgrm.ru/_/stickers/db6/f99/db6f99b9-68b9-379c-8787-7caa5bbfc110/5.webp');
@@ -42,13 +46,31 @@ const start = () => {
     bot.on('callback_query', msg => {
         const data = msg.data;
         const chatId = msg.message.chat.id;
+        const messId = msg.message.message_id;
+
         if(data === '/again') {
+            console.log('/again', msg.from.first_name);
             return startGame(chatId);
         }
+
+        if(data === '/clear') {
+            console.log('/clear', msg.from.first_name);
+            deleteMessage(chatId, messId);
+            
+            return bot.sendMessage(chatId, 'попытка удаления сообщений..не удалось! пытался, но подзаебался!');
+        }
+
+        if(chats[chatId] !== undefined) {
+            const randomNumber = Math.floor(Math.random()*10);
+            chats[chatId] = randomNumber;
+        }
+
         if (data == chats[chatId]) {
-            return bot.sendMessage(chatId, `Поздравляю, ты угадал цифру ${chats[chatId]}`, again1options);
+            const win = bot.sendMessage(chatId, `Поздравляю, ты угадал цифру ${chats[chatId]}`, again1options);
+            return win
         } else {
-            return bot.sendMessage(chatId, `К сожалению ты выбрал цифру ${data}, я загадал цифру ${chats[chatId]}`, again1options)
+            const lose = bot.sendMessage(chatId, `К сожалению ты выбрал цифру ${data}, я загадал цифру ${chats[chatId]}`, again1options);
+            return lose
         }
     })
 }
