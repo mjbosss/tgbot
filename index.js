@@ -1,6 +1,8 @@
+import {token} from "./secret_config.js"
+
 const TelegramApi = require('node-telegram-bot-api');
 const {game1options, again1options} = require('./options')
-const token = '5933398539:AAF49T_cBLld0g9ENm5rBgEqmwf-5Wt6xn4';
+//const token = '5933398539:AAF49T_cBLld0g9ENm5rBgEqmwf-5Wt6xn4';
 
 const bot = new TelegramApi(token, {polling: true});
 const chats = {}
